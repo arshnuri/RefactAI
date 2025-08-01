@@ -14,7 +14,7 @@ def calculate_positive_sum(numbers: list[int]) -> int:
             total += num
     return total
 
+# Example usage
 numbers = [1, -2, 3, 4, -1]
 result = calculate_positive_sum(numbers)
 print(result)
-print("  # RefactAI works here too!")
