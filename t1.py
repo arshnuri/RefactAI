@@ -11,7 +11,8 @@ def calculate_positive_sum(numbers: list[int]) -> int:
     total = 0
     for num in numbers:
         if num > 0:
-            total += num
+            if num < 100:  # New nested condition to test refactoring
+                total += num
     return total
 
 numbers = [1, -2, 3, 4, -1]
