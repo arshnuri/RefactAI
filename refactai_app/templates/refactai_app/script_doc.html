@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - RefactAI</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #0d1117;
+            color: #e6edf3;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 1px solid #30363d;
+        }
+        
+        .header h1 {
+            margin: 0;
+            color: #58a6ff;
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        
+        .file-info {
+            color: #8b949e;
+            font-size: 1.1em;
+            margin-top: 10px;
+        }
+        
+        .description {
+            background: #0c2d6b;
+            border-left: 4px solid #58a6ff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+            font-size: 1.1em;
+        }
+        
+        .back-button {
+            display: inline-block;
+            background: #238636;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: background-color 0.2s;
+        }
+        
+        .back-button:hover {
+            background: #2ea043;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .code-container {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .code-header {
+            background: #21262d;
+            padding: 15px 20px;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .code-filename {
+            color: #f0f6fc;
+            font-weight: 600;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+        }
+        
+        .copy-button {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        
+        .copy-button:hover {
+            background: #2ea043;
+        }
+        
+        .code-content {
+            padding: 20px;
+            overflow-x: auto;
+        }
+        
+        .code-content pre {
+            margin: 0;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #e6edf3;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .usage-info {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .usage-info h3 {
+            color: #58a6ff;
+            margin-top: 0;
+        }
+        
+        .usage-info code {
+            background: #262c36;
+            color: #f8f8f2;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .usage-info pre {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 15px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        
+        .usage-info pre code {
+            background: none;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ title }}</h1>
+        <div class="file-info">Source: {{ file_name }}</div>
+    </div>
+    
+    <a href="{% url 'refactai_app:documentation' %}" class="back-button">← Back to Documentation</a>
+    
+    {% if description %}
+    <div class="description">
+        {{ description }}
+    </div>
+    {% endif %}
+    
+    <div class="usage-info">
+        <h3>How to Use This Script</h3>
+        <p>This is an automated setup script that will configure your RefactAI environment. Run it with:</p>
+        <pre><code>python {{ file_name }}</code></pre>
+        <p>The script will automatically:</p>
+        <ul>
+            <li>Install required dependencies</li>
+            <li>Set up configuration files</li>
+            <li>Fix common issues</li>
+            <li>Verify the installation</li>
+        </ul>
+    </div>
+    
+    <div class="code-container">
+        <div class="code-header">
+            <span class="code-filename">{{ file_name }}</span>
+            <button class="copy-button" onclick="copyCode()">Copy Code</button>
+        </div>
+        <div class="code-content">
+            <pre id="code-content">{{ content }}</pre>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 40px; color: #8b949e;">
+        <p><a href="{% url 'refactai_app:documentation' %}" style="color: #58a6ff;">Return to Documentation Hub</a></p>
+    </div>
+    
+    <script>
+        function copyCode() {
+            const codeContent = document.getElementById('code-content');
+            const textArea = document.createElement('textarea');
+            textArea.value = codeContent.textContent;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            const button = document.querySelector('.copy-button');
+            const originalText = button.textContent;
+            button.textContent = 'Copied!';
+            button.style.background = '#238636';
+            
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.style.background = '#238636';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

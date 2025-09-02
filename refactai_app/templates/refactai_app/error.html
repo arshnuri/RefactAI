@@ -1,0 +1,175 @@
+{% extends 'refactai_app/base.html' %}
+{% load static %}
+
+{% block title %}Service Issue - RefactAI{% endblock %}
+
+{% block content %}
+<style>
+    .error-page {
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+    }
+
+    .error-container {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 50px 40px;
+        text-align: center;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .error-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        color: #ff6b6b;
+        text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+    }
+
+    .error-container h1 {
+        color: #F3F4F6;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .error-container p {
+        color: #b0b0b0;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 30px;
+    }
+
+    .error-suggestions {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 30px 0;
+        text-align: left;
+    }
+
+    .error-suggestions h6 {
+        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+
+    .error-suggestions ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .error-suggestions li {
+        color: #9CA3AF;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        position: relative;
+        padding-left: 25px;
+    }
+
+    .error-suggestions li:last-child {
+        border-bottom: none;
+    }
+
+    .error-suggestions li::before {
+        content: "•";
+        color: #667eea;
+        font-weight: bold;
+        position: absolute;
+        left: 0;
+    }
+
+    .error-actions {
+        margin-top: 40px;
+    }
+
+    .error-container .btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        margin: 0 10px;
+    }
+
+    .error-container .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .error-container .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .error-container .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 8px 24px rgba(255, 255, 255, 0.1);
+    }
+
+    @media (max-width: 768px) {
+        .error-container {
+            padding: 30px 20px;
+        }
+        
+        .error-container h1 {
+            font-size: 2rem;
+        }
+        
+        .error-container .btn {
+            display: block;
+            margin: 10px auto;
+            width: 200px;
+        }
+    }
+</style>
+
+<div class="error-page">
+    <div class="error-container">
+        <div class="error-icon">⚠️</div>
+        <h1>Service Temporarily Unavailable</h1>
+        <p>{{ error_message|default:"Our refactoring service is temporarily unavailable. Please try again in a few minutes." }}</p>
+        
+        <div class="error-suggestions">
+            {% if suggestions %}
+            <h6>What you can try:</h6>
+            <ul>
+                {% for suggestion in suggestions %}
+                <li>{{ suggestion }}</li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <h6>What you can try:</h6>
+            <ul>
+                <li>Wait a few minutes and try again</li>
+                <li>Try with a smaller ZIP file</li>
+                <li>Check your internet connection</li>
+                <li>Contact support if the problem persists</li>
+            </ul>
+            {% endif %}
+        </div>
+
+        <div class="error-actions">
+            <a href="{% url 'refactai_app:home' %}" class="btn">Try Again</a>
+            <a href="{% url 'refactai_app:health_check' %}" class="btn btn-secondary" target="_blank">Service Status</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

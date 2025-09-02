@@ -1,0 +1,104 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Database
+*.db
+*.sqlite3
+db.sqlite3
+
+# Django
+media/
+staticfiles/
+static/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+temp_uploads/
+*.tmp
+*.temp
+
+# Model files (large)
+refactoring_model_*/
+*.json.large
+
+# Vercel
+.vercel/
+
+# Cache
+.cache/
+
+# Build artifacts
+example_code.zip
+
+# Reports and generated files
+*_report_*.json
+accuracy_report.json
+model_evaluation_*.json
+nested_if_detection_report_*.json
+refactoring_quality_report_*.json
+synthetic_refactoring_dataset_*.json
+
+# Backup files
+*.backup
+*.bak
+
+# Test wait files
+--wait.txt

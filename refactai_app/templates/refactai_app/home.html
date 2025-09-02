@@ -1,0 +1,1247 @@
+{% extends 'refactai_app/base.html' %}
+
+{% block title %}RefactAI - Intelligent Code Refactoring{% endblock %}
+
+{% block content %}
+<style>
+    .main-content-home {
+        display: flex;
+        align-items: center;
+        padding: 5px 5px;
+        gap: 80px;
+        max-width: 1800px;
+        margin: 0 auto;
+        min-height: 80vh;
+       
+    }
+
+    .left-section {
+        flex: 1;
+        max-width: 600px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .powered-by {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 25px;
+        padding: 8px 14px;
+        width: fit-content;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 10px;
+        margin-bottom: 40px;
+    }
+
+    .powered-by::before {
+        content: "⚡";
+        font-size: 16px;
+    }
+
+    .main-title {
+        font-size: 3.75rem;
+        font-weight: 800;
+        line-height: 1.0;
+        margin-bottom:15px;
+        text-align: left;
+        margin-top: 0;
+    }
+
+    .highlight {
+        background: linear-gradient(135deg, #00d4ff, #fef796, #ff81ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        
+        filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.1));
+    }
+
+    .description {
+        font-size: 16px;
+        line-height: 1.35;
+        color: #b0b0b0;
+        margin-bottom: 20px;
+        max-width: 580px;
+        text-align: left;
+    }
+
+    .description strong {
+        color: white;
+    }
+
+    .stats {
+        display: flex;
+        gap: 30px;
+        width: fit-content;
+        margin-bottom: 30px;
+        justify-content: flex-start;
+        padding: 18px 18px;
+        border-radius: 16px;
+       
+        
+        
+        
+    }
+
+    .stat-item {
+        text-align: center;
+        min-width: 80px;
+    }
+
+    .stat-number {
+        font-size: 2.3rem;
+        font-weight: 800;
+        color: #00d4ff;
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 16px;
+        color: #a0a0a0;
+        margin-top: 8px;
+    }
+
+    .right-section {
+        flex: 1;
+        position: relative;
+         top: -60px;
+    }
+
+    .code-container {
+        background: rgba(39, 35, 35, 0.4);
+        border-radius: 16px;
+        padding: 20px;
+        width: 105%;
+       
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        min-height: 400px;
+    }
+
+    .window-controls {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .control {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+
+    .control.red { background: #ff5f57; }
+    .control.yellow { background: #ffbd2e; }
+    .control.green { background: #28ca42; }
+
+    .before-after-toggle {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        padding: 8px 16px;
+        color: #a0a0a0;
+        font-size: 12px;
+    }
+
+    .code-section {
+        margin-bottom: 30px;
+    }
+
+    .code-label {
+        color: #ff6b6b;
+        font-size: 14px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .code-label::before {
+        content: "▶";
+        font-size: 10px;
+    }
+
+    .code-block {
+        background: rgba(0, 0, 0, 0.6);
+        border-left: 3px solid #ff6b6b;
+        padding: 15px 20px;
+        border-radius: 0 8px 8px 0;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .code-block.after {
+        border-left-color: #4ecdc4;
+        background: rgba(0, 20, 20, 0.6);
+    }
+
+    .code-label.after {
+        color: #4ecdc4;
+    }
+
+    .code-keyword { color: #ff79c6; }
+    .code-function { color: #50fa7b; }
+    .code-string { color: #f1fa8c; }
+    .code-comment { color: #6272a4; }
+
+    .bg-effect {
+        position: absolute;
+        right: -200px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        z-index: -1;
+        will-change: transform;
+        transform-style: preserve-3d;
+        backface-visibility: hidden;
+    }
+
+    .cta-section {
+        margin-top: 0;
+        text-align: left;
+    }
+
+    .cta-button {
+        position: relative;
+        padding: 3px;
+        background: linear-gradient(90deg, #03a9f4, #f441a5);
+        border-radius: 0.9em;
+        transition: all 0.4s ease;
+        display: inline-block;
+        text-decoration: none;
+    }
+
+    .cta-button::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        border-radius: 0.9em;
+        z-index: -10;
+        filter: blur(0);
+        transition: filter 0.4s ease;
+    }
+
+    .cta-button:hover::before {
+        background: linear-gradient(90deg, #03a9f4, #f441a5);
+        filter: blur(1.2em);
+    }
+
+    .cta-button:active::before {
+        filter: blur(0.2em);
+    }
+
+    .cta-button-inner {
+        font-size: 1.4em;
+        padding: 0.6em 0.8em;
+        border-radius: 0.5em;
+        border: none;
+        background-color: #000;
+        color: #fff;
+        cursor: pointer;
+        box-shadow: 2px 2px 3px #000000b4;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+
+    .upload-section {
+        padding: 100px 50px;
+        max-width: 1000px;
+        margin: 0 auto;
+        text-align: center;
+        position: relative;
+    }
+
+    .upload-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: -1;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateX(-50%) translateY(0px); }
+        50% { transform: translateX(-50%) translateY(-20px); }
+    }
+
+    .upload-container {
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 24px;
+        padding: 60px 50px;
+        backdrop-filter: blur(20px);
+        box-shadow: 
+            0 20px 40px rgba(0, 0, 0, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s ease;
+        max-width: 900px;
+        margin: 0 auto;
+        width: 90%;
+    }
+
+    .upload-container::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: conic-gradient(from 0deg, transparent, rgba(102, 126, 234, 0.03), transparent);
+        animation: rotate 20s linear infinite;
+        z-index: -1;
+    }
+
+    @keyframes rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .upload-container:hover {
+        transform: translateY(-5px);
+        box-shadow: 
+            0 30px 60px rgba(0, 0, 0, 0.25),
+            inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+
+    .upload-title {
+        font-size: 2.8rem;
+        font-weight: 800;
+        margin-bottom: 25px;
+        color: #ffffff;
+        position: relative;
+        display: inline-block;
+    }
+
+    .upload-title::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 3px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        border-radius: 2px;
+    }
+
+    .upload-description {
+        font-size: 18px;
+        color: #c0c0c0;
+        margin-bottom: 50px;
+        line-height: 1.7;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .upload-form {
+        max-width: 750px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .file-upload-area {
+        border: 2px dashed rgba(102, 126, 234, 0.4);
+        border-radius: 16px;
+        padding: 50px 30px;
+        margin-bottom: 30px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        background: rgba(102, 126, 234, 0.03);
+        overflow: hidden;
+        will-change: transform, border-color, background;
+    }
+
+    .file-upload-area::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .file-upload-area:hover {
+        border-color: #667eea;
+        background: rgba(102, 126, 234, 0.08);
+        transform: scale(1.02);
+    }
+
+    .file-upload-area:hover::before {
+        left: 100%;
+    }
+
+    .file-upload-icon {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        display: block;
+        animation: bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        60% { transform: translateY(-5px); }
+    }
+
+    .file-upload-text {
+        color: #e0e0e0;
+        font-size: 17px;
+        margin-bottom: 20px;
+        font-weight: 500;
+    }
+
+    .file-upload-text strong {
+        color: #667eea;
+        font-weight: 700;
+    }
+
+    .file-upload-text small {
+        color: #a0a0a0;
+        font-size: 14px;
+    }
+
+    .file-upload-area input[type="file"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .upload-button {
+        position: relative;
+        padding: 18px 45px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        font-size: 18px;
+        font-weight: 700;
+        cursor: pointer;
+        background: rgba(139, 92, 246, 0.4); /* Purple with opacity */
+        border-radius: 14px;
+        color: #fff;
+        transition: all 0.3s ease;
+        box-shadow: 
+            0 4px 6px rgba(0, 0, 0, 0.1),
+            inset 0 0 10px rgba(255, 255, 255, 0.3),
+            0 0 20px rgba(139, 92, 246, 0.7); /* Added glow */
+        backdrop-filter: blur(10px); /* Glass effect */
+        -webkit-backdrop-filter: blur(10px);
+        text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        overflow: hidden;
+    }
+
+    .upload-button::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        border-radius: 14px;
+        filter: blur(0);
+        z-index: -1;
+        box-shadow: none;
+        background: linear-gradient(135deg, rgba(167, 139, 250, 0.3) 0%, rgba(139, 92, 246, 0.3) 100%); /* Opaque purple gradient */
+        transition: all 0.3s ease;
+    }
+
+    .upload-button:hover::before {
+        filter: blur(15px);
+    }
+
+    .upload-button:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 
+            0 6px 10px rgba(0, 0, 0, 0.2),
+            inset 0 0 15px rgba(255, 255, 255, 0.5),
+            0 0 30px rgba(139, 92, 246, 0.9); /* Enhanced glow on hover */
+    }
+
+    .upload-button:active::before {
+        filter: blur(5px);
+        transform: translateY(1px);
+    }
+
+    .upload-button:active {
+        box-shadow: 
+            0 2px 3px rgba(0, 0, 0, 0.1),
+            inset 0 0 8px rgba(255, 255, 255, 0.2),
+            0 0 10px rgba(139, 92, 246, 0.5); /* Glow on active */
+        margin-top: 3px;
+        transform: translateY(-1px) scale(1.02);
+    }
+
+    .upload-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .upload-button:disabled:hover {
+         transform: none;
+         box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+     }
+
+     /* Refactoring Options Styling */
+     .refactor-options {
+         margin-bottom: 40px;
+         text-align: left;
+     }
+
+     .options-title {
+         font-size: 1.5rem;
+         font-weight: 700;
+         color: #ffffff;
+         margin-bottom: 25px;
+         text-align: center;
+     }
+
+     .processing-modes {
+         display: flex;
+         justify-content: center;
+         align-items: stretch;
+         gap: 20px;
+         margin-bottom: 40px;
+         flex-wrap: wrap;
+     }
+
+     .processing-modes .mode-card {
+         flex: 0 1 220px;
+         max-width: 250px;
+     }
+
+     .mode-card {
+         background: rgba(255, 255, 255, 0.05);
+         border: 2px solid rgba(255, 255, 255, 0.1);
+         border-radius: 12px;
+         padding: 20px;
+         cursor: pointer;
+         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+         text-align: center;
+         position: relative;
+         overflow: hidden;
+         will-change: transform;
+     }
+
+     .mode-card.best-option {
+         border: 2px solid #22c55e;
+         background: rgba(34, 197, 94, 0.1);
+         box-shadow: 0 0 25px rgba(34, 197, 94, 0.3);
+         transform: scale(1.05);
+     }
+
+     .mode-card.best-option::after {
+         content: '✨ RECOMMENDED';
+         position: absolute;
+         top: 0px;
+         right: 0px;
+         background: linear-gradient(135deg, #22c55e, #16a34a);
+         color: white;
+         font-size: 0.5rem;
+         font-weight: 700;
+         padding: 4px 5px;
+         border-radius: 12px;
+         letter-spacing: 0.5px;
+         box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
+         animation: pulse-glow 2s infinite;
+     }
+
+     @keyframes pulse-glow {
+         0%, 100% { box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4); }
+         50% { box-shadow: 0 4px 16px rgba(34, 197, 94, 0.6); }
+     }
+
+     .mode-card.best-option:hover {
+         border-color: #16a34a;
+         background: rgba(34, 197, 94, 0.15);
+         transform: scale(1.08) translateY(-2px);
+         box-shadow: 0 8px 32px rgba(34, 197, 94, 0.4);
+     }
+
+     .mode-card::before {
+         content: '';
+         position: absolute;
+         top: 0;
+         left: -100%;
+         width: 100%;
+         height: 100%;
+         background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+         transition: left 0.5s ease;
+     }
+
+     .mode-card:hover {
+         border-color: rgba(102, 126, 234, 0.5);
+         background: rgba(102, 126, 234, 0.08);
+         transform: translateY(-2px);
+     }
+
+     .mode-card:hover::before {
+         left: 100%;
+     }
+
+     .mode-card.active {
+         border-color: #667eea;
+         background: rgba(102, 126, 234, 0.15);
+         box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+     }
+
+     .mode-icon,
+     .card-icon {
+         font-size: 2.5rem;
+         margin-bottom: 12px;
+         display: block;
+     }
+
+     .mode-title,
+     .card-title {
+         font-size: 1.1rem;
+         font-weight: 600;
+         color: #ffffff;
+         margin-bottom: 8px;
+     }
+
+     .mode-description,
+     .card-description {
+         font-size: 0.9rem;
+         color: #b0b0b0;
+         line-height: 1.4;
+     }
+
+     .additional-options {
+         background: rgba(255, 255, 255, 0.03);
+         border: 1px solid rgba(255, 255, 255, 0.1);
+         border-radius: 12px;
+         padding: 25px;
+         display: grid;
+         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+         gap: 15px;
+     }
+
+     .option-group {
+         display: flex;
+         align-items: center;
+     }
+
+     .option-label {
+         display: flex;
+         align-items: center;
+         cursor: pointer;
+         font-size: 0.95rem;
+         color: #e0e0e0;
+         font-weight: 500;
+         position: relative;
+         padding-left: 35px;
+     }
+
+     .option-label input[type="checkbox"] {
+         position: absolute;
+         opacity: 0;
+         cursor: pointer;
+         height: 0;
+         width: 0;
+     }
+
+     .checkmark {
+         position: absolute;
+         left: 0;
+         height: 20px;
+         width: 20px;
+         background: rgba(255, 255, 255, 0.1);
+         border: 2px solid rgba(102, 126, 234, 0.5);
+         border-radius: 4px;
+         transition: all 0.3s ease;
+     }
+
+     .option-label:hover .checkmark {
+         border-color: #667eea;
+         background: rgba(102, 126, 234, 0.1);
+     }
+
+     .option-label input:checked ~ .checkmark {
+         background: linear-gradient(135deg, #667eea, #764ba2);
+         border-color: #667eea;
+     }
+
+     .checkmark:after {
+         content: "";
+         position: absolute;
+         display: none;
+         left: 6px;
+         top: 2px;
+         width: 6px;
+         height: 10px;
+         border: solid white;
+         border-width: 0 2px 2px 0;
+         transform: rotate(45deg);
+     }
+
+     .option-label input:checked ~ .checkmark:after {
+         display: block;
+     }
+
+     @media (max-width: 768px) {
+         .processing-modes,
+         .refactor-types {
+             grid-template-columns: 1fr;
+         }
+         
+         .additional-options {
+             grid-template-columns: 1fr;
+         }
+     }
+
+    .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+        margin-right: 10px;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .upload-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+
+    .upload-overlay-content {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 40px;
+        text-align: center;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .upload-overlay h3 {
+        color: #fff;
+        font-size: 24px;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    .upload-overlay p {
+        color: #b0b0b0;
+        font-size: 16px;
+        margin-bottom: 30px;
+    }
+
+    .upload-progress {
+        width: 300px;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+        overflow: hidden;
+        margin: 0 auto;
+    }
+
+    .upload-progress-fill {
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 3px;
+        width: 0%;
+        animation: progress-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes progress-pulse {
+        0%, 100% { width: 30%; }
+        50% { width: 70%; }
+    }
+
+    .error-messages {
+        margin-bottom: 20px;
+    }
+
+    .error-message {
+        color: #ff6b6b;
+        background: rgba(255, 107, 107, 0.1);
+        border: 1px solid rgba(255, 107, 107, 0.3);
+        border-radius: 8px;
+        padding: 10px 15px;
+        margin-bottom: 10px;
+        font-size: 14px;
+    }
+
+    @media (max-width: 1200px) {
+        .main-content-home {
+            flex-direction: column;
+            gap: 60px;
+            padding: 40px 30px;
+            text-align: center;
+            min-height: auto;
+        }
+        
+        .left-section {
+            max-width: 100%;
+            text-align: center;
+        }
+        
+        .main-title {
+            font-size: 3.5rem;
+            text-align: center;
+        }
+        
+        .description {
+            text-align: center;
+            max-width: 100%;
+            margin: 0 auto 40px;
+        }
+        
+        .stats {
+            justify-content: center;
+            gap: 50px;
+            margin-bottom: 40px;
+        }
+        
+        .cta-section {
+            text-align: center;
+        }
+        
+        .upload-section {
+            padding: 60px 20px;
+        }
+        
+        .upload-container {
+            padding: 40px 30px;
+            width: 95%;
+            max-width: 700px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .main-content-home {
+            padding: 30px 20px;
+            gap: 40px;
+        }
+        
+        .main-title {
+            font-size: 2.8rem;
+            line-height: 1.1;
+        }
+        
+        .description {
+            font-size: 17px;
+            margin-bottom: 35px;
+        }
+        
+        .stats {
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+        }
+    }
+</style>
+
+<div class="bg-effect"></div>
+
+<main class="main-content-home">
+    <section class="left-section">
+
+        <h1 class="main-title">
+            Transform <br> 
+            Your   Code<br>
+            Into <span class="highlight">Masterpiece</span>
+        </h1>
+        
+        <p class="description">
+            Elevate your codebase with intelligent refactoring. Our AI-powered platform combines <strong>Abstract Syntax Tree analysis</strong> with cutting-edge <strong>LLMs</strong> to deliver production-ready, maintainable code that follows industry best practices.
+        </p>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number">5</div>
+                <div class="stat-label">Languages</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">12</div>
+                <div class="stat-label">Refactor Types</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">94.7%</div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+        </div>
+        
+        <div class="cta-section">
+            <a href="#upload-section" class="cta-button" onclick="scrollToUpload()">
+                <span class="cta-button-inner">Try Now - Upload Your Code</span>
+            </a>
+        </div>
+    </section>
+
+    <section class="right-section">
+        <div class="code-container">
+            <div class="window-controls">
+                <div class="control red"></div>
+                <div class="control yellow"></div>
+                <div class="control green"></div>
+            </div>
+            
+            <div class="powered-by" style="position: absolute; top: 10px; right: 15px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px; padding: 8px 16px; font-size: 12px; color: #ffffff; z-index: 10;">
+                Powered by AI & AST Analysis
+            </div>
+
+            <div class="code-section">
+                <div class="code-label">Before refactoring</div>
+                <div class="code-block">
+                    <span class="code-keyword">def</span> <span class="code-function">process_data</span>()<br>
+                    &nbsp;&nbsp;<span class="code-comment"># Complex logic...</span>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin: 20px 0; color: #00d4ff; font-size: 24px;">
+                ↓
+            </div>
+            
+            <div class="code-section">
+                <div class="code-label after">After refactoring</div>
+                <div class="code-block after">
+                    <span class="code-keyword">def</span> <span class="code-function">process_data_efficiently</span>(<span class="code-function">data</span>: <span class="code-keyword">List</span>[<span class="code-keyword">Dict</span>]) -><br>
+                    &nbsp;&nbsp;<span class="code-function">processed_data</span><br>
+                    &nbsp;&nbsp;<span class="code-string">"""Process data with optimized performance."""</span>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Upload Section -->
+<section id="upload-section" class="upload-section">
+    <div class="upload-container">
+        <h2 class="upload-title">Upload Your Code</h2>
+        <p class="upload-description">Upload a ZIP file containing your code and let our AI refactor it for you.</p>
+        
+        <form method="post" action="{% url 'refactai_app:upload_zip' %}" enctype="multipart/form-data" class="upload-form">
+            {% csrf_token %}
+            
+            <!-- Processing Mode Selection -->
+            <div class="refactor-options">
+                <h3 class="options-title">Processing Mode</h3>
+                <div class="processing-modes">
+                    <div class="mode-card" data-mode="local">
+                        <span class="mode-icon">💻</span>
+                        <div class="mode-title">Local LLM</div>
+                        <div class="mode-description">Process using local language model</div>
+                    </div>
+                    <div class="mode-card active best-option" data-mode="hybrid">
+                        <span class="mode-icon">⚡</span>
+                        <div class="mode-title">Hybrid</div>
+                        <div class="mode-description">Combine local and cloud processing</div>
+                    </div>
+                    <div class="mode-card" data-mode="api">
+                        <span class="mode-icon">🌐</span>
+                        <div class="mode-title">API</div>
+                        <div class="mode-description">Use cloud-based AI services</div>
+                    </div>
+                </div>
+                
+
+                
+                <!-- Additional Options -->
+                <div class="additional-options">
+                    <div class="option-group">
+                        <label class="option-label">
+                            <input type="checkbox" name="preserve_comments" checked>
+                            <span class="checkmark"></span>
+                            Preserve existing comments
+                        </label>
+                    </div>
+                    <div class="option-group">
+                        <label class="option-label">
+                            <input type="checkbox" name="add_documentation" checked>
+                            <span class="checkmark"></span>
+                            Add documentation and docstrings
+                        </label>
+                    </div>
+                    <div class="option-group">
+                        <label class="option-label">
+                            <input type="checkbox" name="follow_conventions">
+                            <span class="checkmark"></span>
+                            Follow language-specific conventions
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="file-upload-area">
+                <div class="file-upload-icon">📁</div>
+                <div class="file-upload-text">
+                    <strong>Choose a ZIP file</strong> or drag and drop
+                    <br><small>Maximum file size: 25MB</small>
+                </div>
+                {{ form.zip_file }}
+                <input type="hidden" name="refactor_type" id="refactor-type-input" value="comprehensive">
+                <input type="hidden" name="processing_mode" id="processing-mode-input" value="hybrid">
+            </div>
+            
+            {% if form.zip_file.errors %}
+                <div class="error-messages">
+                    {% for error in form.zip_file.errors %}
+                        <p class="error-message">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <button type="submit" class="upload-button" id="upload-btn">
+                <span class="upload-button-text">🚀 Start Refactoring</span>
+            </button>
+        </form>
+    </div>
+</section>
+
+<!-- Upload Loading Overlay -->
+<div class="upload-overlay" id="upload-overlay">
+    <div class="upload-overlay-content">
+        <h3>Processing Your Code</h3>
+        <p>Please wait while we analyze and refactor your files...</p>
+        <div class="upload-progress">
+            <div class="upload-progress-fill"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function scrollToUpload() {
+        document.getElementById('upload-section').scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+    }
+
+    // Processing mode and refactoring type selection functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Processing mode selection
+        const modeCards = document.querySelectorAll('.mode-card');
+        const processingModeInput = document.getElementById('processing-mode-input');
+        
+        modeCards.forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove active class from all mode cards
+                modeCards.forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked card
+                this.classList.add('active');
+                
+                // Update hidden input value
+                const mode = this.getAttribute('data-mode');
+                processingModeInput.value = mode;
+            });
+        });
+        
+
+    });
+
+    // Throttled mouse movement effect to improve performance
+    let mouseTimeout;
+    document.addEventListener('mousemove', (e) => {
+        if (mouseTimeout) return;
+        
+        mouseTimeout = setTimeout(() => {
+            const bgEffect = document.querySelector('.bg-effect');
+            if (bgEffect) {
+                const x = e.clientX / window.innerWidth;
+                const y = e.clientY / window.innerHeight;
+                
+                bgEffect.style.transform = `translate(${x * 30}px, ${y * 30}px)`;
+            }
+            mouseTimeout = null;
+        }, 16); // ~60fps
+    });
+
+    // Optimized code block hover effects
+    const codeBlocks = document.querySelectorAll('.code-block');
+    codeBlocks.forEach(block => {
+        // Set transition once instead of on every hover
+        block.style.transition = 'transform 0.3s ease';
+        
+        block.addEventListener('mouseenter', () => {
+            block.style.transform = 'scale(1.02)';
+        });
+        
+        block.addEventListener('mouseleave', () => {
+            block.style.transform = 'scale(1)';
+        });
+    });
+
+    // File upload drag and drop functionality
+    const fileUploadArea = document.querySelector('.file-upload-area');
+    const fileInput = document.querySelector('input[type="file"]');
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        fileUploadArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        fileUploadArea.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        fileUploadArea.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight(e) {
+        fileUploadArea.style.borderColor = '#667eea';
+        fileUploadArea.style.background = 'rgba(102, 126, 234, 0.15)';
+    }
+
+    function unhighlight(e) {
+        fileUploadArea.style.borderColor = 'rgba(102, 126, 234, 0.5)';
+        fileUploadArea.style.background = 'rgba(102, 126, 234, 0.05)';
+    }
+
+    fileUploadArea.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        
+        if (files.length > 0) {
+            fileInput.files = files;
+            updateFileDisplay(files[0]);
+        }
+    }
+
+    fileInput.addEventListener('change', function(e) {
+        if (e.target.files.length > 0) {
+            updateFileDisplay(e.target.files[0]);
+        }
+    });
+
+    function updateFileDisplay(file) {
+        const fileText = document.querySelector('.file-upload-text');
+        fileText.innerHTML = `<strong>Selected:</strong> ${file.name}<br><small>Size: ${(file.size / 1024 / 1024).toFixed(2)} MB</small>`;
+    }
+
+    // Upload form handling with loading overlay
+    const uploadForm = document.querySelector('.upload-form');
+    const uploadBtn = document.getElementById('upload-btn');
+    const uploadOverlay = document.getElementById('upload-overlay');
+    const uploadButtonText = document.querySelector('.upload-button-text');
+
+    uploadForm.addEventListener('submit', function(e) {
+        const fileInput = document.querySelector('input[type="file"]');
+        
+        // Check if file is selected
+        if (!fileInput.files || fileInput.files.length === 0) {
+            e.preventDefault();
+            alert('Please select a ZIP file to upload.');
+            return;
+        }
+
+        // Check file size (25MB limit)
+        const file = fileInput.files[0];
+        const maxSize = 25 * 1024 * 1024; // 25MB in bytes
+        if (file.size > maxSize) {
+            e.preventDefault();
+            alert('File size exceeds 25MB limit. Please select a smaller file.');
+            return;
+        }
+
+        // Check file type
+        if (!file.name.toLowerCase().endsWith('.zip')) {
+            e.preventDefault();
+            alert('Please select a ZIP file.');
+            return;
+        }
+
+        // Show loading state
+        showUploadLoading();
+    });
+
+    function showUploadLoading() {
+        // Disable the button and show spinner
+        uploadBtn.disabled = true;
+        uploadButtonText.innerHTML = '<div class="loading-spinner"></div>Uploading...';
+        
+        // Show overlay
+        uploadOverlay.style.display = 'flex';
+        
+        // Prevent page navigation away
+        window.addEventListener('beforeunload', preventNavigation);
+        
+        // Hide overlay after 3 seconds to prevent it from persisting on redirect
+        setTimeout(() => {
+            hideUploadLoading();
+        }, 3000);
+    }
+
+    function hideUploadLoading() {
+        uploadBtn.disabled = false;
+        uploadButtonText.innerHTML = '🚀 Start Refactoring';
+        uploadOverlay.style.display = 'none';
+        window.removeEventListener('beforeunload', preventNavigation);
+    }
+
+    function preventNavigation(e) {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+    }
+
+    // Hide loading if there's an error and page reloads
+    window.addEventListener('load', function() {
+        hideUploadLoading();
+    });
+    
+    // Hide loading overlay when page is about to unload (redirect)
+    window.addEventListener('beforeunload', function() {
+        hideUploadLoading();
+    });
+    
+    // Also hide overlay when page visibility changes (user switches tabs)
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            hideUploadLoading();
+        }
+    });
+</script>
+{% endblock %}

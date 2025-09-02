@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - RefactAI</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #0d1117;
+            color: #e6edf3;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 1px solid #30363d;
+        }
+        
+        .header h1 {
+            margin: 0;
+            color: #58a6ff;
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        
+        .file-info {
+            color: #8b949e;
+            font-size: 1.1em;
+            margin-top: 10px;
+        }
+        
+        .back-button {
+            display: inline-block;
+            background: #238636;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: background-color 0.2s;
+        }
+        
+        .back-button:hover {
+            background: #2ea043;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .content {
+            background: #161b22;
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid #30363d;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .content h1, .content h2, .content h3, .content h4, .content h5, .content h6 {
+            color: #f0f6fc;
+            border-bottom: 1px solid #30363d;
+            padding-bottom: 8px;
+            margin-top: 30px;
+            margin-bottom: 16px;
+        }
+        
+        .content h1 { font-size: 2em; }
+        .content h2 { font-size: 1.75em; }
+        .content h3 { font-size: 1.5em; }
+        
+        .content code {
+            background: #262c36;
+            color: #f8f8f2;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+        }
+        
+        .content pre {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+        
+        .content pre code {
+            background: none;
+            padding: 0;
+            color: #e6edf3;
+        }
+        
+        .content blockquote {
+            border-left: 4px solid #58a6ff;
+            background: #0c2d6b;
+            margin: 16px 0;
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 16px 0;
+        }
+        
+        .content th, .content td {
+            border: 1px solid #30363d;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .content th {
+            background: #21262d;
+            font-weight: 600;
+        }
+        
+        .content ul, .content ol {
+            padding-left: 24px;
+            margin: 16px 0;
+        }
+        
+        .content li {
+            margin: 8px 0;
+        }
+        
+        .content a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+        
+        .content a:hover {
+            text-decoration: underline;
+        }
+        
+        .content p {
+            margin: 16px 0;
+        }
+        
+        .toc {
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .toc h2 {
+            margin-top: 0;
+            color: #58a6ff;
+        }
+        
+        .toc ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .toc ul ul {
+            padding-left: 20px;
+        }
+        
+        .toc a {
+            color: #8b949e;
+            display: block;
+            padding: 4px 0;
+        }
+        
+        .toc a:hover {
+            color: #58a6ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ title }}</h1>
+        <div class="file-info">Source: {{ file_name }}</div>
+    </div>
+    
+    <a href="{% url 'refactai_app:documentation' %}" class="back-button">← Back to Documentation</a>
+    
+    <div class="content">
+        {{ content|safe }}
+    </div>
+    
+    <div style="text-align: center; margin-top: 40px; color: #8b949e;">
+        <p><a href="{% url 'refactai_app:documentation' %}" style="color: #58a6ff;">Return to Documentation Hub</a></p>
+    </div>
+</body>
+</html>

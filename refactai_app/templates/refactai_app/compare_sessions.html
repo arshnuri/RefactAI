@@ -1,0 +1,326 @@
+{% extends 'refactai_app/base.html' %}
+
+{% block title %}RefactAI - Compare Sessions{% endblock %}
+
+{% block content %}
+<div class="badge">📊 Compare Sessions</div>
+<h1 class="neon-text" style="font-size: 2.5rem; margin-bottom: 20px;">Refactoring Sessions</h1>
+<p style="font-size: 1.2rem; color: #D1D5DB; margin-bottom: 40px;">Browse and compare your code refactoring history</p>
+
+{% if sessions %}
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <div style="color: #A78BFA; font-size: 1.1rem;">
+            📈 Total Sessions: <strong>{{ total_sessions }}</strong>
+        </div>
+        <div style="display: flex; gap: 15px;">
+            <button onclick="sortSessions('date')" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9rem;">Sort by Date</button>
+            <button onclick="sortSessions('success')" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9rem;">Sort by Success Rate</button>
+            <button onclick="sortSessions('files')" class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.9rem;">Sort by File Count</button>
+        </div>
+    </div>
+
+    <div class="sessions-grid" id="sessionsGrid">
+        {% for session in sessions %}
+        <div class="session-card" data-date="{{ session.created_at.timestamp }}" data-success="{{ session.success_rate }}" data-files="{{ session.total_files_count }}">
+            <div class="session-header">
+                <div class="session-title">
+                    <h3>{{ session.original_filename }}</h3>
+                    <span class="session-status status-{{ session.status }}">{{ session.get_status_display }}</span>
+                </div>
+                <div class="session-date">
+                    {{ session.created_at|date:"M d, Y H:i" }}
+                </div>
+            </div>
+            
+            <div class="session-stats">
+                <div class="stat-item">
+                    <div class="stat-number">{{ session.total_files_count }}</div>
+                    <div class="stat-label">Total Files</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">{{ session.completed_files_count }}</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">{{ session.success_rate }}%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            </div>
+            
+            {% if session.languages %}
+            <div class="languages-section">
+                <div class="languages-title">Languages:</div>
+                <div class="languages-list">
+                    {% for language, count in session.languages.items %}
+                    <span class="language-badge">{{ language }} ({{ count }})</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="session-actions">
+                {% if session.status == 'completed' %}
+                    <a href="{% url 'refactai_app:results' session.id %}" class="btn" style="flex: 1; text-align: center; margin-right: 10px;">View Details</a>
+                    <a href="{% url 'refactai_app:download_refactored' session.id %}" class="btn btn-secondary" style="flex: 1; text-align: center;">Download</a>
+                {% elif session.status == 'processing' %}
+                    <a href="{% url 'refactai_app:results' session.id %}" class="btn" style="flex: 1; text-align: center; background-color: #F59E0B;">View Progress</a>
+                {% else %}
+                    <a href="{% url 'refactai_app:results' session.id %}" class="btn btn-secondary" style="flex: 1; text-align: center;">View Errors</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📁</div>
+        <h2>No Refactoring Sessions Yet</h2>
+        <p>Upload your first ZIP file to start refactoring and comparing code!</p>
+        <a href="/" class="btn" style="margin-top: 20px;">Upload Code</a>
+    </div>
+{% endif %}
+
+<style>
+.sessions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.session-card {
+    background: #1F2937;
+    border-radius: 12px;
+    padding: 25px;
+    border: 1px solid #374151;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.session-card:hover {
+    border-color: #8B5CF6;
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.15);
+    transform: translateY(-2px);
+}
+
+.session-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.session-title {
+    flex: 1;
+}
+
+.session-title h3 {
+    color: #fff;
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    word-break: break-word;
+}
+
+.session-status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-completed {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22C55E;
+    border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.status-processing {
+    background: rgba(245, 158, 11, 0.2);
+    color: #F59E0B;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.status-failed {
+    background: rgba(239, 68, 68, 0.2);
+    color: #EF4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.session-date {
+    color: #9CA3AF;
+    font-size: 0.9rem;
+    margin-left: 15px;
+    white-space: nowrap;
+}
+
+.session-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    border: 1px solid #374151;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #A78BFA;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: #9CA3AF;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.languages-section {
+    margin-bottom: 20px;
+}
+
+.languages-title {
+    color: #D1D5DB;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.languages-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.language-badge {
+    background: rgba(167, 139, 250, 0.1);
+    color: #A78BFA;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    border: 1px solid rgba(167, 139, 250, 0.3);
+}
+
+.session-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #9CA3AF;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+}
+
+.empty-state h2 {
+    color: #D1D5DB;
+    margin-bottom: 15px;
+    font-size: 1.8rem;
+}
+
+.empty-state p {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .sessions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .session-header {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .session-date {
+        margin-left: 0;
+    }
+    
+    .session-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .session-actions {
+        flex-direction: column;
+    }
+}
+</style>
+
+<script>
+function sortSessions(criteria) {
+    const grid = document.getElementById('sessionsGrid');
+    const cards = Array.from(grid.children);
+    
+    cards.sort((a, b) => {
+        let aValue, bValue;
+        
+        switch(criteria) {
+            case 'date':
+                aValue = parseFloat(a.dataset.date);
+                bValue = parseFloat(b.dataset.date);
+                return bValue - aValue; // Newest first
+            case 'success':
+                aValue = parseFloat(a.dataset.success);
+                bValue = parseFloat(b.dataset.success);
+                return bValue - aValue; // Highest success rate first
+            case 'files':
+                aValue = parseInt(a.dataset.files);
+                bValue = parseInt(b.dataset.files);
+                return bValue - aValue; // Most files first
+            default:
+                return 0;
+        }
+    });
+    
+    // Clear grid and re-append sorted cards
+    grid.innerHTML = '';
+    cards.forEach(card => grid.appendChild(card));
+    
+    // Visual feedback
+    cards.forEach((card, index) => {
+        card.style.animation = `fadeInUp 0.3s ease ${index * 0.05}s both`;
+    });
+}
+
+// Add CSS animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// Auto-refresh for processing sessions
+setInterval(() => {
+    const processingCards = document.querySelectorAll('.status-processing');
+    if (processingCards.length > 0) {
+        // Only refresh if there are processing sessions
+        location.reload();
+    }
+}, 30000); // Refresh every 30 seconds
+</script>
+{% endblock %}

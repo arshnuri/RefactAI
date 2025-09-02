@@ -1,0 +1,995 @@
+{% extends 'refactai_app/base.html' %}
+
+{% block title %}RefactAI Documentation - Complete Guide{% endblock %}
+
+{% block content %}
+
+<style>
+    .doc-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .hero-section {
+        text-align: center;
+        margin-bottom: 40px;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        border-radius: 20px;
+        padding: 40px;
+        backdrop-filter: blur(10px);
+    }
+
+    .hero-title {
+        font-size: 3rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 20px;
+    }
+
+    .hero-subtitle {
+        font-size: 1.3rem;
+        color: #D1D5DB;
+        margin-bottom: 30px;
+        line-height: 1.6;
+    }
+
+    .version-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #10B981, #059669);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .features-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin: 40px 0;
+    }
+
+    .feature-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 25px;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(99, 102, 241, 0.5);
+        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
+    }
+
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        display: block;
+    }
+
+    .feature-title {
+        color: #F3F4F6;
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+    .feature-desc {
+        color: #9CA3AF;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    .section-header {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 30px;
+        margin: 40px 0 30px 0;
+        text-align: center;
+    }
+
+    .section-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #F3F4F6;
+        margin-bottom: 15px;
+    }
+
+    .section-subtitle {
+        color: #9CA3AF;
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+
+    .content-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 30px;
+        margin: 25px 0;
+        backdrop-filter: blur(10px);
+    }
+
+    .content-title {
+        color: #A855F7;
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .step-number {
+        background: linear-gradient(135deg, #A855F7, #7C3AED);
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .code-block {
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        color: #E5E7EB;
+        line-height: 1.6;
+        overflow-x: auto;
+        position: relative;
+    }
+
+    .code-block::before {
+        content: "💻 Code";
+        position: absolute;
+        top: -10px;
+        left: 15px;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        color: #9CA3AF;
+    }
+
+    .command-block {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        color: #10B981;
+        line-height: 1.6;
+        position: relative;
+    }
+
+    .command-block::before {
+        content: "⚡ Terminal";
+        position: absolute;
+        top: -10px;
+        left: 15px;
+        background: rgba(16, 185, 129, 0.2);
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        color: #10B981;
+    }
+
+    .alert {
+        padding: 20px;
+        border-radius: 12px;
+        margin: 20px 0;
+        border: 1px solid;
+        backdrop-filter: blur(10px);
+    }
+
+    .alert-success {
+        background: rgba(16, 185, 129, 0.1);
+        border-color: rgba(16, 185, 129, 0.3);
+        color: #10B981;
+    }
+
+    .alert-info {
+        background: rgba(59, 130, 246, 0.1);
+        border-color: rgba(59, 130, 246, 0.3);
+        color: #3B82F6;
+    }
+
+    .alert-warning {
+        background: rgba(245, 158, 11, 0.1);
+        border-color: rgba(245, 158, 11, 0.3);
+        color: #F59E0B;
+    }
+
+    .workflow-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin: 30px 0;
+    }
+
+    .workflow-step {
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        padding: 25px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        transition: all 0.3s ease;
+    }
+
+    .workflow-step:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    .workflow-icon {
+        font-size: 2rem;
+        min-width: 60px;
+        text-align: center;
+    }
+
+    .workflow-content h4 {
+        color: #F3F4F6;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .workflow-content p {
+        color: #9CA3AF;
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+
+    .options-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+        margin: 20px 0;
+    }
+
+    .option-item {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .option-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(99, 102, 241, 0.4);
+    }
+
+    .option-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .option-title {
+        color: #F3F4F6;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .option-desc {
+        color: #9CA3AF;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
+    .troubleshooting-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 25px;
+        margin: 30px 0;
+    }
+
+    .trouble-card {
+        background: rgba(239, 68, 68, 0.05);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 16px;
+        padding: 25px;
+        backdrop-filter: blur(10px);
+    }
+
+    .trouble-title {
+        color: #EF4444;
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .trouble-content {
+        color: #D1D5DB;
+        line-height: 1.6;
+    }
+
+    .trouble-content ul {
+        margin: 10px 0;
+        padding-left: 20px;
+    }
+
+    .trouble-content li {
+        margin: 8px 0;
+    }
+
+    .quick-links {
+        background: rgba(99, 102, 241, 0.1);
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        border-radius: 16px;
+        padding: 30px;
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    .quick-links h3 {
+        color: #6366F1;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .links-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .quick-link {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 15px;
+        color: #D1D5DB;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: block;
+    }
+
+    .quick-link:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(99, 102, 241, 0.5);
+        color: #6366F1;
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2rem;
+        }
+        
+        .features-overview {
+            grid-template-columns: 1fr;
+        }
+        
+        .workflow-step {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .troubleshooting-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="doc-container">
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="version-badge">v2.0 - Latest Update</div>
+        <h1 class="hero-title">RefactAI Documentation</h1>
+        <p class="hero-subtitle">
+            Comprehensive guide to AI-powered code refactoring with interactive CLI, Git integration, and cross-platform support
+        </p>
+    </div>
+
+    <!-- Features Overview -->
+    <div class="features-overview">
+        <div class="feature-card">
+            <span class="feature-icon">🎯</span>
+            <h3 class="feature-title">Interactive CLI</h3>
+            <p class="feature-desc">Menu-driven interface with "Refactor and Push to Git" workflow, smart file selection, and cross-drive support.</p>
+        </div>
+        
+        <div class="feature-card">
+            <span class="feature-icon">🔗</span>
+            <h3 class="feature-title">Git Integration</h3>
+            <p class="feature-desc">Automated Git hooks with Unicode fixes, AST validation, and seamless push workflows.</p>
+        </div>
+        
+        <div class="feature-card">
+            <span class="feature-icon">🤖</span>
+            <h3 class="feature-title">OpenRouter API</h3>
+            <p class="feature-desc">Access to multiple AI models including Claude 3.5 Sonnet, GPT-4, and specialized coding models.</p>
+        </div>
+        
+        <div class="feature-card">
+            <span class="feature-icon">🌐</span>
+            <h3 class="feature-title">Cross-Platform</h3>
+            <p class="feature-desc">Works across different drives (C:\, D:\), supports Windows, macOS, and Linux environments.</p>
+        </div>
+        
+        <div class="feature-card">
+            <span class="feature-icon">🛠️</span>
+            <h3 class="feature-title">Self-Healing</h3>
+            <p class="feature-desc">Automated fix scripts resolve common issues, with comprehensive troubleshooting guides.</p>
+        </div>
+        
+        <div class="feature-card">
+            <span class="feature-icon">⚡</span>
+            <h3 class="feature-title">Multi-Language</h3>
+            <p class="feature-desc">Supports Python, JavaScript, Java, C++, TypeScript, and more with language-specific optimizations.</p>
+        </div>
+    </div>
+
+    <!-- Quick Start Section -->
+    <div class="section-header">
+        <h2 class="section-title">🚀 Quick Start Guide</h2>
+        <p class="section-subtitle">Get up and running with RefactAI in minutes</p>
+    </div>
+
+    <div class="workflow-steps">
+        <div class="workflow-step">
+            <div class="workflow-icon">📥</div>
+            <div class="workflow-content">
+                <h4>1. Clone & Setup</h4>
+                <p>Download RefactAI and set up your environment with automated scripts.</p>
+                <div class="command-block">git clone https://github.com/arshnuri/RefactAI.git
+cd RefactAI
+python setup.py</div>
+            </div>
+        </div>
+
+        <div class="workflow-step">
+            <div class="workflow-icon">🔑</div>
+            <div class="workflow-content">
+                <h4>2. Configure API</h4>
+                <p>Set up OpenRouter API for the best refactoring experience.</p>
+                <div class="command-block">echo "OPENROUTER_API_KEY=your_key_here" > .env
+echo "DEFAULT_MODEL=anthropic/claude-3.5-sonnet" >> .env</div>
+            </div>
+        </div>
+
+        <div class="workflow-step">
+            <div class="workflow-icon">🎯</div>
+            <div class="workflow-content">
+                <h4>3. Launch Interactive CLI</h4>
+                <p>Start the menu-driven interface for easy refactoring workflows.</p>
+                <div class="command-block">python cli.py</div>
+            </div>
+        </div>
+
+        <div class="workflow-step">
+            <div class="workflow-icon">🚀</div>
+            <div class="workflow-content">
+                <h4>4. Refactor & Push</h4>
+                <p>Use the "Refactor and Push to Git" option for seamless code improvement.</p>
+                <div class="alert alert-info">
+                    <strong>🆕 New Feature:</strong> Select files from any drive, refactor with AI, and push to Git in one workflow!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive CLI Section -->
+    <div class="section-header">
+        <h2 class="section-title">🖥️ Interactive CLI Mode</h2>
+        <p class="section-subtitle">The heart of RefactAI - powerful, user-friendly, and feature-rich</p>
+    </div>
+
+    <div class="content-card">
+        <h3 class="content-title">
+            <span class="step-number">1</span>
+            Launch Interactive Mode
+        </h3>
+        <p style="color: #D1D5DB; margin-bottom: 20px;">
+            Start the interactive CLI to access all RefactAI features through an intuitive menu system.
+        </p>
+        <div class="command-block">python cli.py</div>
+        
+        <div class="alert alert-success">
+            <strong>✨ Menu Options Available:</strong>
+            <ul style="margin: 10px 0 0 20px;">
+                <li>🔄 Refactor a single file</li>
+                <li>📁 Refactor a directory</li>
+                <li>🚀 Refactor and Push to Git (NEW!)</li>
+                <li>⚙️ Configure settings</li>
+                <li>🧪 Test LLM connection</li>
+                <li>📊 View refactoring statistics</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <h3 class="content-title">
+            <span class="step-number">2</span>
+            Refactor and Push to Git Workflow
+        </h3>
+        <p style="color: #D1D5DB; margin-bottom: 20px;">
+            The flagship feature that combines AI refactoring with Git operations in a seamless workflow.
+        </p>
+        
+        <h4 style="color: #A855F7; margin: 25px 0 15px 0;">File Selection Methods:</h4>
+        <div class="options-grid">
+            <div class="option-item">
+                <span class="option-icon">📁</span>
+                <div class="option-title">All Modified Files</div>
+                <div class="option-desc">Auto-detects files from git status</div>
+            </div>
+            <div class="option-item">
+                <span class="option-icon">🎯</span>
+                <div class="option-title">Pattern Selection</div>
+                <div class="option-desc">Use patterns like *.py, src/**/*.js</div>
+            </div>
+            <div class="option-item">
+                <span class="option-icon">📝</span>
+                <div class="option-title">Manual Selection</div>
+                <div class="option-desc">Specify exact file paths</div>
+            </div>
+            <div class="option-item">
+                <span class="option-icon">🌐</span>
+                <div class="option-title">Cross-Drive</div>
+                <div class="option-desc">Files from C:\, D:\, any drive</div>
+            </div>
+        </div>
+
+        <h4 style="color: #A855F7; margin: 25px 0 15px 0;">Example Usage:</h4>
+        <div class="code-block"># Pattern-based selection
+*.py                    # All Python files
+src/**/*.js            # All JS files in src directory
+**/*.java              # All Java files recursively
+
+# Cross-drive manual selection
+D:\MyProject\app.py
+C:\Code\utils.js, D:\Backend\api.java
+/absolute/path/to/file.py
+
+# Mixed selection
+D:\Frontend\*.tsx, C:\Backend\**/*.py</div>
+    </div>
+
+    <div class="content-card">
+        <h3 class="content-title">
+            <span class="step-number">3</span>
+            AI Refactoring Process
+        </h3>
+        <p style="color: #D1D5DB; margin-bottom: 20px;">
+            Advanced AI-powered refactoring with validation and safety checks.
+        </p>
+        
+        <div class="workflow-steps">
+            <div class="workflow-step">
+                <div class="workflow-icon">🔍</div>
+                <div class="workflow-content">
+                    <h4>Code Analysis</h4>
+                    <p>AI analyzes code structure, patterns, and potential improvements.</p>
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="workflow-icon">🤖</div>
+                <div class="workflow-content">
+                    <h4>AI Refactoring</h4>
+                    <p>OpenRouter API with Claude 3.5 Sonnet performs intelligent refactoring.</p>
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="workflow-icon">✅</div>
+                <div class="workflow-content">
+                    <h4>AST Validation</h4>
+                    <p>Ensures refactored code maintains syntactic correctness.</p>
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="workflow-icon">💾</div>
+                <div class="workflow-content">
+                    <h4>Backup Creation</h4>
+                    <p>Original files are safely backed up before modification.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Git Integration Section -->
+    <div class="section-header">
+        <h2 class="section-title">🔗 Git Integration</h2>
+        <p class="section-subtitle">Seamless version control with automated refactoring hooks</p>
+    </div>
+
+    <div class="content-card">
+        <h3 class="content-title">
+            <span class="step-number">1</span>
+            Git Hook Setup
+        </h3>
+        <p style="color: #D1D5DB; margin-bottom: 20px;">
+            Enhanced Git hooks with Unicode fixes and better error handling for all platforms.
+        </p>
+        
+        <div class="alert alert-success">
+            <strong>🆕 Recent Improvements:</strong>
+            <ul style="margin: 10px 0 0 20px;">
+                <li>✅ Fixed Unicode encoding issues on Windows</li>
+                <li>✅ Improved error handling and recovery</li>
+                <li>✅ Lightweight implementation with minimal dependencies</li>
+                <li>✅ Better AST validation integration</li>
+            </ul>
+        </div>
+
+        <h4 style="color: #A855F7; margin: 25px 0 15px 0;">Automated Setup:</h4>
+        <div class="command-block"># Complete setup with hooks
+python setup.py
+
+# Or traditional setup
+python setup_local_llm.py</div>
+
+        <h4 style="color: #A855F7; margin: 25px 0 15px 0;">Manual Installation:</h4>
+        <div class="command-block"># Copy enhanced hook (recommended)
+cp git-hook-ascii.py .git/hooks/pre-push
+
+# Or minimal version
+cp git-hook-minimal.py .git/hooks/pre-push
+
+# Make executable (Unix/macOS)
+chmod +x .git/hooks/pre-push</div>
+    </div>
+
+    <div class="content-card">
+        <h3 class="content-title">
+            <span class="step-number">2</span>
+            Git Workflow Integration
+        </h3>
+        <p style="color: #D1D5DB; margin-bottom: 20px;">
+            Normal Git commands with automatic refactoring before pushes.
+        </p>
+        
+        <div class="command-block"># Standard Git workflow
+git add .
+git commit -m "Your changes"
+git push  # ✨ Automatic refactoring happens here!
+
+# Bypass refactoring if needed
+git push --no-verify
+
+# Test hook without pushing
+git push --dry-run</div>
+
+        <div class="alert alert-info">
+            <strong>🔄 Hook Process:</strong> When you push, the hook automatically detects modified code files, refactors them using AI, validates syntax with AST, creates backups, and then pushes the improved code.
+        </div>
+    </div>
+
+    <!-- API Configuration Section -->
+    <div class="section-header">
+        <h2 class="section-title">🤖 API Configuration</h2>
+        <p class="section-subtitle">Configure AI models for optimal refactoring performance</p>
+    </div>
+
+    <div class="content-card">
+        <h3 class="content-title">
+            <span class="step-number">1</span>
+            OpenRouter API (Recommended)
+        </h3>
+        <p style="color: #D1D5DB; margin-bottom: 20px;">
+            Access to multiple state-of-the-art AI models through a single API.
+        </p>
+        
+        <div class="alert alert-success">
+            <strong>🎯 Why OpenRouter:</strong> Best performance, multiple model options, reliable service, and excellent documentation.
+        </div>
+
+        <div class="command-block"># Get API key from https://openrouter.ai/
+echo "OPENROUTER_API_KEY=your_key_here" > .env
+echo "OPENROUTER_API_URL=https://openrouter.ai/api/v1/chat/completions" >> .env
+echo "DEFAULT_MODEL=anthropic/claude-3.5-sonnet" >> .env
+echo "PREFER_LOCAL_LLM=false" >> .env
+
+# Test connection
+python test_openrouter_api.py</div>
+
+        <h4 style="color: #A855F7; margin: 25px 0 15px 0;">Available Models:</h4>
+        <div class="options-grid">
+            <div class="option-item">
+                <span class="option-icon">🧠</span>
+                <div class="option-title">Claude 3.5 Sonnet</div>
+                <div class="option-desc">Best for code refactoring</div>
+            </div>
+            <div class="option-item">
+                <span class="option-icon">⚡</span>
+                <div class="option-title">GPT-4o</div>
+                <div class="option-desc">Fast and reliable</div>
+            </div>
+            <div class="option-item">
+                <span class="option-icon">💻</span>
+                <div class="option-title">DeepSeek Coder</div>
+                <div class="option-desc">Specialized for coding</div>
+            </div>
+            <div class="option-item">
+                <span class="option-icon">🌟</span>
+                <div class="option-title">Gemini Pro 1.5</div>
+                <div class="option-desc">Google's latest model</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <h3 class="content-title">
+            <span class="step-number">2</span>
+            Alternative APIs
+        </h3>
+        <p style="color: #D1D5DB; margin-bottom: 20px;">
+            Additional API providers for different use cases and preferences.
+        </p>
+        
+        <div class="command-block"># Groq (Fast inference)
+echo "GROQ_API_KEY=your_key_here" >> .env
+echo "USE_GROQ=true" >> .env
+python test_groq_api.py
+
+# Google Gemini
+echo "GEMINI_API_KEY=your_key_here" >> .env
+echo "USE_GEMINI=true" >> .env
+python test_gemini_api.py
+
+# Local LLM (Ollama)
+echo "PREFER_LOCAL_LLM=true" >> .env
+echo "LOCAL_LLM_MODEL=deepseek-coder:6.7b" >> .env
+ollama pull deepseek-coder:6.7b</div>
+    </div>
+
+    <!-- Troubleshooting Section -->
+    <div class="section-header">
+        <h2 class="section-title">🔧 Troubleshooting & Fixes</h2>
+        <p class="section-subtitle">Automated solutions for common issues</p>
+    </div>
+
+    <div class="alert alert-warning">
+        <strong>🚨 Automated Fix Scripts Available:</strong> RefactAI includes self-healing capabilities with automated fix scripts for common issues!
+    </div>
+
+    <div class="troubleshooting-grid">
+        <div class="trouble-card">
+            <h4 class="trouble-title">
+                🐛 CLI Validation Errors
+            </h4>
+            <div class="trouble-content">
+                <p><strong>Issue:</strong> 'InteractiveRefactorCLI' object has no attribute...</p>
+                <div class="command-block" style="margin: 15px 0; font-size: 0.9em;">python fix_cli_validation.py</div>
+                <p><strong>Issue:</strong> 'ASTValidator' object has no attribute 'validate_syntax'</p>
+                <div class="command-block" style="margin: 15px 0; font-size: 0.9em;">python fix_ast_validator.py</div>
+                <ul>
+                    <li>✅ Resolves method name mismatches</li>
+                    <li>✅ Adds missing AST validation methods</li>
+                    <li>✅ Automated, no manual editing required</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="trouble-card">
+            <h4 class="trouble-title">
+                🔗 Git Hook Issues
+            </h4>
+            <div class="trouble-content">
+                <p><strong>Unicode Encoding Errors (Windows):</strong></p>
+                <div class="command-block" style="margin: 15px 0; font-size: 0.9em;">cp git-hook-ascii.py .git/hooks/pre-push</div>
+                <p><strong>Permission Issues (Unix/macOS):</strong></p>
+                <div class="command-block" style="margin: 15px 0; font-size: 0.9em;">chmod +x .git/hooks/pre-push</div>
+                <p><strong>Bypass Hook Temporarily:</strong></p>
+                <div class="command-block" style="margin: 15px 0; font-size: 0.9em;">git push --no-verify</div>
+                <ul>
+                    <li>✅ Fixed Unicode issues on Windows</li>
+                    <li>✅ Better error handling and recovery</li>
+                    <li>✅ Minimal dependencies</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="trouble-card">
+            <h4 class="trouble-title">
+                🌐 Cross-Drive Access
+            </h4>
+            <div class="trouble-content">
+                <p><strong>File Path Examples:</strong></p>
+                <div class="code-block" style="margin: 15px 0; font-size: 0.9em;"># Absolute paths
+D:\MyProject\app.py
+C:\Code\utils.js
+
+# Multiple files
+D:\Backend\api.py, C:\Frontend\app.js</div>
+                <ul>
+                    <li>✅ Full cross-drive support</li>
+                    <li>✅ Windows drive letters handled properly</li>
+                    <li>✅ Works in all CLI modes</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="trouble-card">
+            <h4 class="trouble-title">
+                🔑 API Configuration
+            </h4>
+            <div class="trouble-content">
+                <p><strong>Test API Connections:</strong></p>
+                <div class="command-block" style="margin: 15px 0; font-size: 0.9em;">python test_openrouter_api.py
+python test_groq_api.py
+python test_gemini_api.py</div>
+                <p><strong>Check Environment:</strong></p>
+                <div class="command-block" style="margin: 15px 0; font-size: 0.9em;"># Verify .env file
+cat .env
+
+# Test in CLI
+python cli.py
+# Select: "🧪 Test LLM connection"</div>
+                <ul>
+                    <li>✅ Multiple API provider support</li>
+                    <li>✅ Automatic fallback mechanisms</li>
+                    <li>✅ Built-in connection testing</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Usage Section -->
+    <div class="section-header">
+        <h2 class="section-title">⚡ Advanced Usage</h2>
+        <p class="section-subtitle">Power user features and customization options</p>
+    </div>
+
+    <div class="content-card">
+        <h3 class="content-title">
+            🎯 Command Line Options
+        </h3>
+        <p style="color: #D1D5DB; margin-bottom: 20px;">
+            Traditional command-line usage for automation and scripting.
+        </p>
+        
+        <div class="code-block"># Single file refactoring
+python cli.py path/to/your/file.py
+
+# Directory refactoring
+python cli.py --recursive src/
+
+# Dry run (preview changes)
+python cli.py --dry-run path/to/your/file.py
+
+# Create backups
+python cli.py --backup path/to/your/file.py
+
+# Use specific model
+python cli.py --model codellama:7b path/to/your/file.py
+
+# Test connection
+python cli.py --test-connection</div>
+    </div>
+
+    <div class="content-card">
+        <h3 class="content-title">
+            🔧 Configuration Options
+        </h3>
+        <p style="color: #D1D5DB; margin-bottom: 20px;">
+            Customize RefactAI behavior through environment variables and settings.
+        </p>
+        
+        <div class="code-block"># Core Configuration
+OPENROUTER_API_KEY=your_key_here
+DEFAULT_MODEL=anthropic/claude-3.5-sonnet
+PREFER_LOCAL_LLM=false
+
+# Advanced Options
+ENABLE_HYBRID_MODE=true
+CREATE_BACKUP=true
+DRY_RUN_MODE=false
+MAX_FILE_SIZE=100000
+TIMEOUT_SECONDS=300
+
+# API Alternatives
+USE_GROQ=false
+USE_GEMINI=false
+LOCAL_LLM_MODEL=deepseek-coder:6.7b</div>
+    </div>
+
+    <!-- Quick Links Section -->
+    <div class="quick-links">
+        <h3>📚 Additional Resources</h3>
+        <p style="color: #D1D5DB; margin-bottom: 20px;">
+            Comprehensive guides and documentation for deep-dive learning
+        </p>
+        <div class="links-grid">
+            <a href="{% url 'refactai_app:setup_guide' %}" class="quick-link">
+                <strong>📋 SETUP_GUIDE_FOR_USERS.md</strong><br>
+                Complete setup guide
+            </a>
+            <a href="{% url 'refactai_app:new_user_setup' %}" class="quick-link">
+                <strong>🚀 NEW_USER_SETUP.md</strong><br>
+                Quick start for beginners
+            </a>
+            <a href="{% url 'refactai_app:troubleshooting_guide' %}" class="quick-link">
+                <strong>🔧 TROUBLESHOOTING.md</strong><br>
+                Detailed troubleshooting
+            </a>
+            <a href="{% url 'refactai_app:setup_script_info' %}" class="quick-link">
+                <strong>⚙️ setup.py</strong><br>
+                Automated setup script
+            </a>
+        </div>
+    </div>
+
+    <!-- Languages Support -->
+    <div class="content-card">
+        <h3 class="content-title">
+            🌐 Supported Languages
+        </h3>
+        <p style="color: #D1D5DB; margin-bottom: 20px;">
+            RefactAI works with multiple programming languages, each with optimized refactoring patterns.
+        </p>
+        
+        <div class="options-grid">
+            <div class="option-item">
+                <span class="option-icon">🐍</span>
+                <div class="option-title">Python</div>
+                <div class="option-desc">Full AST validation, PEP 8 compliance</div>
+            </div>
+            <div class="option-item">
+                <span class="option-icon">💛</span>
+                <div class="option-title">JavaScript</div>
+                <div class="option-desc">ES6+ features, async/await patterns</div>
+            </div>
+            <div class="option-item">
+                <span class="option-icon">🔷</span>
+                <div class="option-title">TypeScript</div>
+                <div class="option-desc">Type safety, interface optimization</div>
+            </div>
+            <div class="option-item">
+                <span class="option-icon">☕</span>
+                <div class="option-title">Java</div>
+                <div class="option-desc">OOP patterns, performance optimization</div>
+            </div>
+            <div class="option-item">
+                <span class="option-icon">⚡</span>
+                <div class="option-title">C++</div>
+                <div class="option-desc">Memory management, modern standards</div>
+            </div>
+            <div class="option-item">
+                <span class="option-icon">🔷</span>
+                <div class="option-title">C#</div>
+                <div class="option-desc">.NET patterns, LINQ optimization</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Final CTA -->
+    <div style="text-align: center; margin: 50px 0; padding: 40px; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1)); border-radius: 20px; border: 1px solid rgba(99, 102, 241, 0.2);">
+        <h2 style="color: #F3F4F6; font-size: 2rem; margin-bottom: 20px;">Ready to Get Started?</h2>
+        <p style="color: #9CA3AF; font-size: 1.1rem; line-height: 1.6; margin-bottom: 30px;">
+            Transform your codebase with AI-powered refactoring. Join thousands of developers already using RefactAI.
+        </p>
+        <div class="command-block" style="display: inline-block; margin: 0 auto;">git clone https://github.com/arshnuri/RefactAI.git && cd RefactAI && python setup.py</div>
+    </div>
+</div>
+
+{% endblock %}

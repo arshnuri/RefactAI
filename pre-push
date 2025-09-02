@@ -1,0 +1,153 @@
+#!/bin/bash
+#
+# RefactAI Git Pre-Push Hook
+# Automatically refactors code files before pushing to remote repository
+#
+# Installation:
+# 1. Copy this file to .git/hooks/pre-push
+# 2. Make it executable: chmod +x .git/hooks/pre-push
+# 3. Ensure RefactAI is properly configured with local LLM
+#
+
+set -e  # Exit on any error
+
+# Configuration
+REFACTAI_DIR="$(dirname "$(readlink -f "$0")")/../.."
+CLI_SCRIPT="$REFACTAI_DIR/cli.py"
+MODEL="deepseek-coder:6.7b"
+SKIP_FLAG="--no-refactor"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Function to print colored output
+print_info() {
+    echo -e "${BLUE}[RefactAI]${NC} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}[RefactAI]${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[RefactAI]${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}[RefactAI]${NC} $1"
+}
+
+# Check if user wants to skip refactoring
+if [[ "$*" == *"$SKIP_FLAG"* ]]; then
+    print_warning "Skipping code refactoring (--no-refactor flag detected)"
+    exit 0
+fi
+
+# Check if RefactAI CLI exists
+if [[ ! -f "$CLI_SCRIPT" ]]; then
+    print_error "RefactAI CLI not found at $CLI_SCRIPT"
+    print_error "Please ensure RefactAI is properly installed"
+    exit 1
+fi
+
+# Check if Python is available
+if ! command -v python3 &> /dev/null && ! command -v python &> /dev/null; then
+    print_error "Python not found. Please install Python 3.7+"
+    exit 1
+fi
+
+# Use python3 if available, otherwise python
+PYTHON_CMD="python3"
+if ! command -v python3 &> /dev/null; then
+    PYTHON_CMD="python"
+fi
+
+# Test local LLM connection
+print_info "Testing local LLM connection..."
+if ! $PYTHON_CMD "$CLI_SCRIPT" --test --model "$MODEL" &> /dev/null; then
+    print_error "Local LLM not available or not working"
+    print_error "Please ensure you have installed and configured one of:"
+    print_error "  - Ollama (https://ollama.ai/)"
+    print_error "  - LM Studio (https://lmstudio.ai/)"
+    print_error "  - llama.cpp (https://github.com/ggerganov/llama.cpp)"
+    print_error ""
+    print_error "To skip refactoring for this push, use: git push $SKIP_FLAG"
+    exit 1
+fi
+
+print_info "🚀 Starting automatic code refactoring before push..."
+
+# Get list of changed files (staged and modified)
+changed_files=$(git diff --cached --name-only --diff-filter=ACM)
+
+# Filter for supported code files
+supported_extensions="\.(py|js|ts|java|cpp|c|h|hpp|cs)$"
+code_files=$(echo "$changed_files" | grep -E "$supported_extensions" || true)
+
+if [[ -z "$code_files" ]]; then
+    print_info "No supported code files found in staged changes"
+    print_success "Proceeding with push (no refactoring needed)"
+    exit 0
+fi
+
+print_info "Found $(echo "$code_files" | wc -l) code file(s) to refactor:"
+echo "$code_files" | sed 's/^/  - /'
+
+# Track refactoring results
+refactored_count=0
+failed_count=0
+failed_files=()
+
+# Process each file
+while IFS= read -r file; do
+    if [[ -f "$file" ]]; then
+        print_info "Refactoring: $file"
+        
+        # Run refactoring
+        if $PYTHON_CMD "$CLI_SCRIPT" "$file" --model "$MODEL" --no-backup; then
+            # Stage the refactored file
+            git add "$file"
+            ((refactored_count++))
+            print_success "✅ Refactored and staged: $file"
+        else
+            ((failed_count++))
+            failed_files+=("$file")
+            print_error "❌ Failed to refactor: $file"
+        fi
+    fi
+done <<< "$code_files"
+
+# Summary
+echo ""
+print_info "📊 Refactoring Summary:"
+print_success "  ✅ Successfully refactored: $refactored_count files"
+
+if [[ $failed_count -gt 0 ]]; then
+    print_error "  ❌ Failed to refactor: $failed_count files"
+    print_error "Failed files:"
+    for file in "${failed_files[@]}"; do
+        print_error "    - $file"
+    done
+    
+    echo ""
+    print_warning "Some files failed to refactor. Options:"
+    print_warning "  1. Fix the issues and try again: git add . && git commit --amend"
+    print_warning "  2. Skip refactoring for this push: git push $SKIP_FLAG"
+    print_warning "  3. Cancel this push and fix manually: Ctrl+C"
+    
+    # Ask user what to do
+    echo ""
+    read -p "Continue with push despite failures? [y/N]: " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        print_error "Push cancelled by user"
+        exit 1
+    fi
+fi
+
+print_success "🎉 Code refactoring complete! Proceeding with push..."
+exit 0

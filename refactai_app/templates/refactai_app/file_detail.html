@@ -1,0 +1,281 @@
+{% extends 'refactai_app/base.html' %}
+
+{% block title %}RefactAI - {{ file.original_path }}{% endblock %}
+
+{% block content %}
+<style>
+    .file-detail-container {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 20px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .file-header {
+        text-align: center;
+        margin-bottom: 30px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 30px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .file-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .file-path {
+        color: #b0b0b0;
+        font-size: 16px;
+        margin-bottom: 15px;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    }
+
+    .file-badges {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge.bg-secondary {
+        background: rgba(108, 117, 125, 0.3);
+        color: #6c757d;
+        border: 1px solid rgba(108, 117, 125, 0.5);
+    }
+
+    .badge.bg-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: 1px solid rgba(102, 126, 234, 0.5);
+    }
+
+    .back-button {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+    .back-button:hover {
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+        color: white;
+        text-decoration: none;
+    }
+
+    .code-panel {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        margin-bottom: 20px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        width: 100%;
+    }
+
+    .panel-header {
+        padding: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .panel-header h2 {
+        color: #fff;
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .panel-header p {
+        color: #9CA3AF;
+        margin: 10px 0 0 0;
+        font-size: 14px;
+    }
+
+    .panel-body {
+        padding: 20px;
+    }
+
+    .comparison-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        width: 100%;
+        min-height: 400px;
+    }
+
+    .comparison-column {
+        min-width: 0; /* Allow shrinking below content width */
+        max-width: 100%;
+    }
+
+    .comparison-column h3 {
+        color: #fff;
+        margin: 0 0 15px 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+        text-align: center;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .code-block {
+        background: rgba(0, 0, 0, 0.4);
+        padding: 20px;
+        border-radius: 12px;
+        height: 500px;
+        overflow-y: auto;
+        overflow-x: auto;
+        color: #e5e7eb;
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        line-height: 1.5;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        font-size: 13px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        position: relative;
+    }
+
+    .code-block::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    .code-block::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+    }
+
+    .code-block::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+    }
+
+    .code-block::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.5);
+    }
+
+    .code-block pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    .code-block code {
+        color: inherit;
+        background: none;
+        padding: 0;
+        font-size: inherit;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    .alert {
+        background: rgba(255, 193, 7, 0.1);
+        border: 1px solid rgba(255, 193, 7, 0.3);
+        color: #ffc107;
+        padding: 15px 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .alert-warning {
+        background: rgba(255, 107, 107, 0.1);
+        border: 1px solid rgba(255, 107, 107, 0.3);
+        color: #ff6b6b;
+    }
+
+    @media (max-width: 1200px) {
+        .comparison-grid {
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+        
+        .code-block {
+            height: 400px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .file-detail-container {
+            padding: 10px;
+        }
+        
+        .file-badges {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .code-block {
+            height: 300px;
+            padding: 15px;
+            font-size: 12px;
+        }
+    }
+</style>
+
+<div class="file-detail-container">
+    <div class="file-header">
+        <h1 class="file-title">File Comparison</h1>
+        <p class="file-path">{{ file.original_path }}</p>
+        <div class="file-badges">
+            <span class="badge bg-secondary">{{ file.language }}</span>
+            <span class="badge bg-primary">{{ file.status }}</span>
+        </div>
+        <a href="{% url 'refactai_app:results' session.id %}" class="back-button">← Back to Results</a>
+    </div>
+
+<div class="code-panel">
+    <div class="panel-body">
+
+        {% if file.error_message %}
+            <div class="alert alert-warning">{{ file.error_message }}</div>
+        {% endif %}
+
+        <div class="comparison-grid">
+            <div class="comparison-column">
+                <h3>Original Code</h3>
+                <div class="code-block">
+                    <pre><code>{{ file.original_content|escape }}</code></pre>
+                </div>
+            </div>
+            <div class="comparison-column">
+                <h3>Refactored Code</h3>
+                <div class="code-block">
+                    <pre><code>{{ file.refactored_content|escape }}</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}
